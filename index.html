@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CRDP Protect/Reveal 데모</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>CRDP Protect/Reveal 데모</h1>
+      <p class="subtitle">13자리 숫자를 입력해 protect → reveal을 수행하고, 진행 과정을 JSON으로 표시합니다.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>입력</h2>
+        <form id="pr-form">
+          <div class="row">
+            <label for="input-data">데이터(13자리 숫자)</label>
+            <input id="input-data" name="input-data" type="text" inputmode="numeric" pattern="\d{13}" placeholder="1234567890123" value="1234567890123" maxlength="13" required />
+          </div>
+
+          <div class="row">
+            <div class="row-inline">
+              <label for="host">IP</label>
+              <input id="host" name="host" type="text" value="192.168.0.231" />
+              <label for="port">Port</label>
+              <input id="port" name="port" type="number" value="32082" />
+              <label for="policy">Protection Policy</label>
+              <input id="policy" name="policy" type="text" placeholder="P03" value="P03" />
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="inline">
+              <input type="checkbox" id="use-proxy" checked /> 프록시 사용(권장)
+            </label>
+            <small class="subtitle">브라우저 CORS 회피를 위해 로컬 서버를 경유합니다.</small>
+          </div>
+
+          <div class="row">
+            <label>Reveal 옵션(선택)</label>
+            <div class="row-inline">
+              <label for="username">username</label>
+              <input id="username" name="username" type="text" placeholder="user1" />
+            </div>
+            <div class="row-inline">
+              <label for="external_version">external_version</label>
+              <input id="external_version" name="external_version" type="text" placeholder="1001002" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" id="run-btn">Protect → Reveal 실행(API)</button>
+            <button type="button" id="reset-btn" class="secondary">리셋</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>결과</h2>
+        <div id="results">
+          <div class="row result-line"><span class="label">암호문(Protected):</span> <code id="protected-out">-</code></div>
+          <div class="row result-line"><span class="label">복호문(Revealed):</span> <code id="revealed-out">-</code></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>진행 JSON</h2>
+        <pre id="progress" class="json"></pre>
+      </section>
+
+      
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+  </html>
