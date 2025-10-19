@@ -24,20 +24,23 @@ let extraProxyParams = {};
 async function callApi({ host, port, path, body, useProxy }) {
   const url = useProxy ? `${path.replace('/v1/','/proxy/v1/')}` : `http://${host}:${port}${path}`;
   const headers = { "Content-Type": "application/json" };
-  // For progress logging, capture ONLY the pure upstream JSON body (no proxy fields/headers/urls)
-  const req = body;
-  // But when actually sending, include proxy parameters if using proxy
+  // For progress logging: include headers + pure CRDP body
+  const req = { headers, body };
+  // Sending body: include proxy params only in actual network call
   const finalBody = useProxy ? { host, port, ...extraProxyParams, ...body } : body;
   let resJson = null;
+  let resHeaders = {};
   let status = 0;
   try {
     const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(finalBody) });
     status = res.status;
+    // Collect response headers as a plain object
+    try { resHeaders = Object.fromEntries(res.headers.entries()); } catch (_) { resHeaders = {}; }
     resJson = await res.json().catch(() => ({ raw: "<non-JSON>" }));
   } catch (err) {
     resJson = { error: String(err) };
   }
-  return { request: req, response: resJson, status };
+  return { request: req, response: { headers: resHeaders, body: resJson }, status };
 }
 
 function validateInput13Digits(value) {
@@ -78,10 +81,10 @@ formEl.addEventListener("submit", async (e) => {
     // API 호출: CRDP 스펙에 맞춘 필드명 사용
     const protectReqBody = { protection_policy_name: policy, data };
   const pr = await callApi({ host, port, path: "/v1/protect", body: protectReqBody, useProxy });
-  step.protect = { request: protectReqBody, response: pr.response };
-  pushProgress({ stage: "protect", request: protectReqBody, response: pr.response });
+  step.protect = { request: pr.request, response: pr.response };
+  pushProgress({ stage: "protect", request: pr.request, response: pr.response });
 
-    const protected_data = pr?.response?.protected_data;
+    const protected_data = pr?.response?.body?.protected_data;
     protectedOutEl.textContent = protected_data ? String(protected_data) : "<no protected_data>";
 
   // protect 실패 시 reveal 단계는 건너뜁니다.
@@ -92,13 +95,13 @@ formEl.addEventListener("submit", async (e) => {
 
   const revealReqBody = { protection_policy_name: policy, protected_data };
   // external_version: protect 응답의 external_version을 자동 전달(필요 시 서버가 무시 가능)
-  const autoExternalVersion = pr?.response?.external_version;
+  const autoExternalVersion = pr?.response?.body?.external_version;
   if (autoExternalVersion) revealReqBody.external_version = autoExternalVersion;
   const rr = await callApi({ host, port, path: "/v1/reveal", body: revealReqBody, useProxy });
-    step.reveal = { request: revealReqBody, response: rr.response };
-    pushProgress({ stage: "reveal", request: revealReqBody, response: rr.response });
+    step.reveal = { request: rr.request, response: rr.response };
+    pushProgress({ stage: "reveal", request: rr.request, response: rr.response });
 
-    const revealed = rr?.response?.data;
+  const revealed = rr?.response?.body?.data;
     revealedOutEl.textContent = revealed ? String(revealed) : "<no revealed>";
 
     // 요약/시간 관련 출력 제거
