@@ -100,5 +100,21 @@ curl -sS -H 'Content-Type: application/json' \
   http://127.0.0.1:5000/proxy/v1/reveal | jq
 ```
 
+## CRDP 실서버 예시(curl)
+다음 샘플 파일은 기본 CRDP IP와 포트를 사용합니다(192.168.0.231:32082, /v1, P03).
+
+1) Protect
+```bash
+curl -sS -H 'Content-Type: application/json' \
+  --data-binary @sample_crdp_proxy_protect.json \
+  http://127.0.0.1:5000/proxy/v1/protect | tee /tmp/live_protect.out
+```
+
+2) Reveal (위 Protect 결과의 protected_data 사용)
+```bash
+echo -n "{\"host\":\"192.168.0.231\",\"port\":\"32082\",\"scheme\":\"http\",\"base_path\":\"/v1\",\"protection_policy_name\":\"P03\",\"protected_data\":\"$(jq -r .protected_data /tmp/live_protect.out)\"}" \
+| curl -sS -H 'Content-Type: application/json' --data-binary @- http://127.0.0.1:5000/proxy/v1/reveal | tee /tmp/live_reveal.out
+```
+
 ## 라이선스
 - 이 데모는 교육/테스트 목적입니다. 참고 레포의 출력 형식을 개념적으로 차용했으며, 해당 레포 라이선스를 확인하세요.

@@ -1,0 +1,8 @@
+{
+  "host": "192.168.0.231",
+  "port": "32082",
+  "scheme": "http",
+  "base_path": "/v1",
+  "protection_policy_name": "P03",
+  "data": "1234567890123"
+}
