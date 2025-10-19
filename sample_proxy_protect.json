@@ -1,0 +1,8 @@
+{
+  "host": "127.0.0.1",
+  "port": "5000",
+  "scheme": "http",
+  "base_path": "/mock/v1",
+  "protection_policy_name": "P03",
+  "data": "1234567890123"
+}
