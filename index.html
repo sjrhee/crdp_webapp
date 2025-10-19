@@ -39,23 +39,15 @@
             <small class="subtitle">브라우저 CORS 회피를 위해 로컬 서버를 경유합니다.</small>
           </div>
 
-          <div class="row">
-            <label>Reveal 옵션(선택)</label>
-            <div class="row-inline">
-              <label for="username">username</label>
-              <input id="username" name="username" type="text" placeholder="user1" />
-            </div>
-            <div class="row-inline">
-              <label for="external_version">external_version</label>
-              <input id="external_version" name="external_version" type="text" placeholder="1001002" />
-            </div>
-          </div>
-
           <div class="actions">
             <button type="submit" id="run-btn">Protect → Reveal 실행(API)</button>
             <button type="button" id="reset-btn" class="secondary">리셋</button>
           </div>
         </form>
+      </section>
+      <section class="card">
+        <h2>진행 JSON</h2>
+        <pre id="progress" class="json"></pre>
       </section>
 
       <section class="card">
@@ -64,11 +56,6 @@
           <div class="row result-line"><span class="label">암호문(Protected):</span> <code id="protected-out">-</code></div>
           <div class="row result-line"><span class="label">복호문(Revealed):</span> <code id="revealed-out">-</code></div>
         </div>
-      </section>
-
-      <section class="card">
-        <h2>진행 JSON</h2>
-        <pre id="progress" class="json"></pre>
       </section>
 
       

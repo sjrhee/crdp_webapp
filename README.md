@@ -62,8 +62,8 @@ URL 파라미터로 초기값을 지정할 수 있습니다:
 - `base_path`: 기본 경로(기본값 /v1). 예: `/api/v1` 등으로 바꿔야 할 때 사용
 
 Protect/Reveal 사양 반영:
-- Protect 응답에는 `protected_data`, `external_version`가 포함됩니다.
-- Reveal 요청 시 `external_version`이 필요하면 사용자가 입력한 값을 우선 사용하고, 입력이 비어 있으면 Protect 응답의 `external_version`을 자동 전달합니다.
+- Protect 응답에는 `protected_data`, (환경에 따라) `external_version`가 포함될 수 있습니다.
+- Reveal 요청 시에는 별도 입력란이 없습니다. Protect 응답에 `external_version`이 포함된 경우 자동으로 전달합니다(필요하지 않은 서버라면 무시됩니다).
 
 ## 문제 해결 가이드
 - 원격 CRDP 서버 접근이 되지 않으면 protect 단계에서 응답이 지연되거나 에러가 표시됩니다. 방화벽/네트워크를 확인하세요.
@@ -78,6 +78,27 @@ curl -sS -H 'Content-Type: application/json' \
   http://127.0.0.1:5000/proxy/_debug
 ```
 개발 중에만 사용하고, 운영 반영 전에는 비활성화를 권장합니다.
+
+## 로컬 Mock 엔드포인트 사용
+CRDP 서버 없이도 전체 흐름을 검증할 수 있도록 Mock 엔드포인트(`/mock/v1`)가 포함되어 있습니다. 프론트엔드에서 기본 값을 다음과 같이 설정하면 프록시가 Mock으로 포워딩합니다.
+
+- 호스트: `127.0.0.1`
+- 포트: `5000`
+- scheme: `http`
+- base_path: `/mock/v1` (URL 파라미터로 지정: `?base_path=/mock/v1`)
+
+터미널 예시:
+```bash
+# Protect(Mock)
+curl -sS -H 'Content-Type: application/json' \
+  --data-binary @sample_proxy_protect.json \
+  http://127.0.0.1:5000/proxy/v1/protect | jq
+
+# Reveal(Mock)
+curl -sS -H 'Content-Type: application/json' \
+  --data-binary @sample_proxy_reveal.json \
+  http://127.0.0.1:5000/proxy/v1/reveal | jq
+```
 
 ## 라이선스
 - 이 데모는 교육/테스트 목적입니다. 참고 레포의 출력 형식을 개념적으로 차용했으며, 해당 레포 라이선스를 확인하세요.

@@ -60,6 +60,8 @@ code { color: #f8fafc; word-break: break-all; }
 .result-line .label { flex: 0 0 auto; }
 .result-line code { margin-left: auto; text-align: right; display: inline-block; max-width: 100%; }
 
+/* compact/result helpers no longer used */
+
 .hidden { display: none; }
 
 footer { padding: 16px; border-top: 1px solid var(--border); color: var(--muted); }

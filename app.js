@@ -24,11 +24,12 @@ let extraProxyParams = {};
 async function callApi({ host, port, path, body, useProxy }) {
   const url = useProxy ? `${path.replace('/v1/','/proxy/v1/')}` : `http://${host}:${port}${path}`;
   const headers = { "Content-Type": "application/json" };
-  const req = { url, headers, body };
+  // Record the actual body that will be sent for progress/debugging visibility
+  const finalBody = useProxy ? { host, port, ...extraProxyParams, ...body } : body;
+  const req = { url, headers, body: finalBody };
   let resJson = null;
   let status = 0;
   try {
-    const finalBody = useProxy ? { host, port, ...extraProxyParams, ...body } : body;
     const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(finalBody) });
     status = res.status;
     resJson = await res.json().catch(() => ({ raw: "<non-JSON>" }));
@@ -59,8 +60,6 @@ formEl.addEventListener("submit", async (e) => {
   const policy = $("#policy").value.trim() || "P03";
     const host = $("#host").value.trim();
     const port = $("#port").value.trim();
-  const username = $("#username")?.value.trim();
-  const external_version = $("#external_version")?.value.trim();
   const useProxy = $("#use-proxy")?.checked;
 
     // 입력 검증
@@ -84,12 +83,16 @@ formEl.addEventListener("submit", async (e) => {
     const protected_data = pr?.response?.protected_data;
     protectedOutEl.textContent = protected_data ? String(protected_data) : "<no protected_data>";
 
+  // protect 실패 시 reveal 단계는 건너뜁니다.
+  if (!protected_data) {
+    pushProgress({ stage: "reveal", skipped: true, reason: "no protected_data from protect" });
+    return;
+  }
+
   const revealReqBody = { protection_policy_name: policy, protected_data };
-  if (username) revealReqBody.username = username;
-  // external_version: 사용자 입력이 있으면 우선 사용, 없으면 protect 응답의 external_version 자동 전달
+  // external_version: protect 응답의 external_version을 자동 전달(필요 시 서버가 무시 가능)
   const autoExternalVersion = pr?.response?.external_version;
-  const finalExternalVersion = external_version || autoExternalVersion;
-  if (finalExternalVersion) revealReqBody.external_version = finalExternalVersion;
+  if (autoExternalVersion) revealReqBody.external_version = autoExternalVersion;
   const rr = await callApi({ host, port, path: "/v1/reveal", body: revealReqBody, useProxy });
     step.reveal = { request: rr.request, response: rr.response };
     pushProgress({ stage: "reveal", ...step.reveal });
