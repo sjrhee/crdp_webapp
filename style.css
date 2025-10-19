@@ -21,7 +21,7 @@ header { padding: 24px 16px; border-bottom: 1px solid var(--border); }
 header h1 { margin: 0 0 4px; font-size: 22px; }
 .subtitle { color: var(--muted); margin: 0; }
 
-main { max-width: 900px; margin: 24px auto; padding: 0 16px; display: grid; gap: 16px; }
+main { max-width: 900px; margin: 24px 0; padding: 0 16px; display: grid; gap: 16px; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
 .card h2 { margin-top: 0; font-size: 18px; }
 /* removed inline action button styles for progress header */
