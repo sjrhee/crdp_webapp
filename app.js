@@ -24,9 +24,10 @@ let extraProxyParams = {};
 async function callApi({ host, port, path, body, useProxy }) {
   const url = useProxy ? `${path.replace('/v1/','/proxy/v1/')}` : `http://${host}:${port}${path}`;
   const headers = { "Content-Type": "application/json" };
-  // Record the actual body that will be sent for progress/debugging visibility
+  // For progress logging, capture ONLY the pure upstream JSON body (no proxy fields/headers/urls)
+  const req = body;
+  // But when actually sending, include proxy parameters if using proxy
   const finalBody = useProxy ? { host, port, ...extraProxyParams, ...body } : body;
-  const req = { url, headers, body: finalBody };
   let resJson = null;
   let status = 0;
   try {
@@ -77,8 +78,8 @@ formEl.addEventListener("submit", async (e) => {
     // API 호출: CRDP 스펙에 맞춘 필드명 사용
     const protectReqBody = { protection_policy_name: policy, data };
   const pr = await callApi({ host, port, path: "/v1/protect", body: protectReqBody, useProxy });
-  step.protect = { request: pr.request, response: pr.response };
-  pushProgress({ stage: "protect", ...step.protect });
+  step.protect = { request: protectReqBody, response: pr.response };
+  pushProgress({ stage: "protect", request: protectReqBody, response: pr.response });
 
     const protected_data = pr?.response?.protected_data;
     protectedOutEl.textContent = protected_data ? String(protected_data) : "<no protected_data>";
@@ -94,8 +95,8 @@ formEl.addEventListener("submit", async (e) => {
   const autoExternalVersion = pr?.response?.external_version;
   if (autoExternalVersion) revealReqBody.external_version = autoExternalVersion;
   const rr = await callApi({ host, port, path: "/v1/reveal", body: revealReqBody, useProxy });
-    step.reveal = { request: rr.request, response: rr.response };
-    pushProgress({ stage: "reveal", ...step.reveal });
+    step.reveal = { request: revealReqBody, response: rr.response };
+    pushProgress({ stage: "reveal", request: revealReqBody, response: rr.response });
 
     const revealed = rr?.response?.data;
     revealedOutEl.textContent = revealed ? String(revealed) : "<no revealed>";
